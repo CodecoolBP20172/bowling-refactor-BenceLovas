@@ -21,7 +21,7 @@ def score(data_string):
             score += base_game(game_data_string, index, current_roll)
         else:
             score += last_frame(game_data_string, index, current_roll)
-            
+
         frame, roll_in_frame = frame_progression(frame, roll_in_frame, current_roll)
 
     return score
@@ -30,6 +30,19 @@ def score(data_string):
 def data_processing(data_string):
 
     return data_string.lower()
+
+
+def spare_bonus_points(game_data_string, index):
+
+    return get_value(game_data_string[index + 1])
+
+
+def strike_bonus_points(game_data_string, index):
+
+    if game_data_string[index + 2] == SPARE:
+        return get_value(game_data_string[index + 1]) + get_value(SPARE, game_data_string[index + 1])
+    else:
+        return get_value(game_data_string[index + 1]) + get_value(game_data_string[index + 2])
 
 
 def base_game(game_data_string, index, current_roll):
@@ -48,19 +61,6 @@ def last_frame(game_data_string, index, current_roll):
         return get_value(SPARE, game_data_string[index - 1])
     else:
         return get_value(current_roll)
-
-
-def spare_bonus_points(game_data_string, index):
-
-    return get_value(game_data_string[index + 1])
-
-
-def strike_bonus_points(game_data_string, index):
-
-    if game_data_string[index + 2] == SPARE:
-        return get_value(game_data_string[index + 1]) + get_value(SPARE, game_data_string[index + 1])
-    else:
-        return get_value(game_data_string[index + 1]) + get_value(game_data_string[index + 2])
 
 
 def is_frame_over(roll_in_frame, current_roll):
