@@ -3,7 +3,7 @@
 STRIKE = 'x'
 SPARE = '/'
 MISS = '-'
-BASE_GAME_FRAME_AMOUNT = 9
+BONUS_POINT_FRAME_AMOUNT = 9
 MAX_ROLL_IN_FRAME = 2
 
 
@@ -17,10 +17,10 @@ def score(data_string):
 
     for index, current_roll in enumerate(game_data_string):
 
-        if frame <= BASE_GAME_FRAME_AMOUNT:
-            score += base_game(game_data_string, index, current_roll)
-        else:
-            score += last_frame(game_data_string, index, current_roll)
+        score += base_points(game_data_string, index, current_roll)
+
+        if is_bonus_point_available(frame, current_roll):
+            score += strike_or_spare_bonus(game_data_string, index, current_roll)
 
         frame, roll_in_frame = frame_progression(frame, roll_in_frame, current_roll)
 
@@ -45,17 +45,20 @@ def strike_bonus_points(game_data_string, index):
         return get_value(game_data_string[index + 1]) + get_value(game_data_string[index + 2])
 
 
-def base_game(game_data_string, index, current_roll):
+def strike_or_spare_bonus(game_data_string, index, current_roll):
 
-    if current_roll == SPARE:
-        return get_value(SPARE, game_data_string[index - 1]) + spare_bonus_points(game_data_string, index)
-    elif current_roll == STRIKE:
-        return get_value(STRIKE) + strike_bonus_points(game_data_string, index)
-    else:
-        return get_value(current_roll)
+    if current_roll == STRIKE:
+        return strike_bonus_points(game_data_string, index)
+    elif current_roll == SPARE:
+        return spare_bonus_points(game_data_string, index)
 
 
-def last_frame(game_data_string, index, current_roll):
+def is_bonus_point_available(frame, current_roll):
+
+    return frame <= BONUS_POINT_FRAME_AMOUNT and current_roll in (STRIKE, SPARE)
+
+
+def base_points(game_data_string, index, current_roll):
 
     if current_roll == SPARE:
         return get_value(SPARE, game_data_string[index - 1])
