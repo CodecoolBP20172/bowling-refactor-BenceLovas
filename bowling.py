@@ -10,7 +10,7 @@ def score(game):
     game = data_processing(game)
     result = 0
     frame = 1
-    in_first_half = True
+    roll_in_frame = 1
     for index, current_roll in enumerate(game):
         if current_roll == SPARE:
             result += 10 - last
@@ -26,19 +26,32 @@ def score(game):
                 else:
                     result += get_value(game[index + 2])
         last = get_value(current_roll)
-        if in_first_half is False:
-            frame += 1
-            in_first_half = True
-        elif in_first_half is True:
-            in_first_half = False
-        if current_roll == STRIKE:
-            in_first_half = True
-            frame += 1
+        
+        frame, roll_in_frame = frame_progression(frame, roll_in_frame, current_roll)
+        
     return result
 
 
 def data_processing(data_string):
+
     return data_string.lower()
+
+
+def is_frame_over(roll_in_frame, current_roll):
+
+    if roll_in_frame == 2 or current_roll == STRIKE:
+        return True
+    else:
+        return False
+
+
+def frame_progression(frame, roll_in_frame, current_roll):
+
+    if is_frame_over(roll_in_frame, current_roll):
+        roll_in_frame = 1
+        return frame + 1, roll_in_frame
+    else:
+        return frame, roll_in_frame + 1
 
 
 def get_value(char):
