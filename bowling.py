@@ -10,18 +10,21 @@ MAX_ROLL_IN_FRAME = 2
 def score(data_string):
 
     game_data_string = data_processing(data_string)
-    result = 0
+
+    score = 0
     frame = 1
     roll_in_frame = 1
 
     for index, current_roll in enumerate(game_data_string):
+
         if frame <= BASE_GAME_FRAME_AMOUNT:
-            result += base_game(game_data_string, index, current_roll)
+            score += base_game(game_data_string, index, current_roll)
         else:
-            result += last_frame(game_data_string, index, current_roll)
+            score += last_frame(game_data_string, index, current_roll)
+            
         frame, roll_in_frame = frame_progression(frame, roll_in_frame, current_roll)
 
-    return result
+    return score
 
 
 def data_processing(data_string):
