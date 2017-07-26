@@ -3,7 +3,7 @@
 STRIKE = 'x'
 SPARE = '/'
 MISS = '-'
-
+BASE_GAME_FRAME_AMOUNT = 9
 
 def score(game):
 
@@ -12,29 +12,51 @@ def score(game):
     frame = 1
     roll_in_frame = 1
     for index, current_roll in enumerate(game):
-        if current_roll == SPARE:
-            result += 10 - last
+
+        if frame <= BASE_GAME_FRAME_AMOUNT:
+            result += base_game(game, index, current_roll)
         else:
-            result += get_value(current_roll)
-        if frame < 10 and get_value(current_roll) == 10:
-            if current_roll == SPARE:
-                result += get_value(game[index + 1])
-            elif current_roll == STRIKE:
-                result += get_value(game[index + 1])
-                if game[index + 2] == SPARE:
-                    result += 10 - get_value(game[index + 1])
-                else:
-                    result += get_value(game[index + 2])
-        last = get_value(current_roll)
+            result += last_frame(game, index, current_roll)
         
         frame, roll_in_frame = frame_progression(frame, roll_in_frame, current_roll)
-        
+
     return result
 
 
 def data_processing(data_string):
 
     return data_string.lower()
+
+
+def base_game(game, index, current_roll):
+
+    if current_roll == SPARE:
+        return get_value(SPARE, game[index - 1]) + spare_bonus_points(game, index)
+    elif current_roll == STRIKE:
+        return get_value(STRIKE) + strike_bonus_points(game, index)
+    else:
+        return get_value(current_roll)
+
+
+def last_frame(game, index, current_roll):
+
+    if current_roll == SPARE:
+        return get_value(SPARE, game[index - 1])
+    else:
+        return get_value(current_roll)
+
+
+def spare_bonus_points(game, index):
+
+    return get_value(game[index + 1])
+
+
+def strike_bonus_points(game, index):
+
+    if game[index + 2] == SPARE:
+        return get_value(game[index + 1]) + get_value(SPARE, game[index + 1])
+    else:
+        return get_value(game[index + 1]) + get_value(game[index + 2])
 
 
 def is_frame_over(roll_in_frame, current_roll):
@@ -54,16 +76,18 @@ def frame_progression(frame, roll_in_frame, current_roll):
         return frame, roll_in_frame + 1
 
 
-def get_value(char):
-    if char == '1' or char == '2' or char == '3' or \
-       char == '4' or char == '5' or char == '6' or \
-       char == '7' or char == '8' or char == '9':
-        return int(char)
-    elif char == STRIKE:
+def get_value(current_roll, last_roll=""):
+    if current_roll == STRIKE:
         return 10
-    elif char == SPARE:
-        return 10
-    elif char == MISS:
+    elif current_roll == SPARE:
+        return 10 - get_value(last_roll)
+    elif current_roll == MISS:
         return 0
-    else:
-        raise ValueError()
+    try:
+        current_roll_int = int(current_roll)
+        if 1 <= current_roll_int and current_roll_int <= 9:
+            return current_roll_int
+        else:
+            raise ValueError("Integer is out of range.")
+    except ValueError:
+        raise ValueError("Invalid input.")
